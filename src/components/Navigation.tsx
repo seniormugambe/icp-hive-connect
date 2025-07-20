@@ -2,38 +2,62 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Bell, User, Menu, Wallet, LogOut } from "lucide-react";
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useWallet } from "@/hooks/useWallet";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
   const { isConnected, principal, balance, isLoading, connectWallet, disconnectWallet, formatPrincipal } = useWallet();
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">IC</span>
             </div>
             <span className="text-xl font-bold">ICP Connect</span>
-          </div>
+          </Link>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#discover" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link 
+              to="/discover" 
+              className={`transition-colors ${
+                isActive('/discover') ? 'text-icp-primary font-medium' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
               Discover
-            </a>
-            <a href="#events" className="text-muted-foreground hover:text-foreground transition-colors">
+            </Link>
+            <Link 
+              to="/events" 
+              className={`transition-colors ${
+                isActive('/events') ? 'text-icp-primary font-medium' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
               Events
-            </a>
-            <a href="#learning" className="text-muted-foreground hover:text-foreground transition-colors">
+            </Link>
+            <Link 
+              to="/learning" 
+              className={`transition-colors ${
+                isActive('/learning') ? 'text-icp-primary font-medium' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
               Learning
-            </a>
-            <a href="#community" className="text-muted-foreground hover:text-foreground transition-colors">
+            </Link>
+            <Link 
+              to="/community" 
+              className={`transition-colors ${
+                isActive('/community') ? 'text-icp-primary font-medium' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
               Community
-            </a>
+            </Link>
           </div>
           
           {/* Search Bar */}
@@ -103,18 +127,42 @@ const Navigation = () => {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <a href="#discover" className="text-muted-foreground hover:text-foreground transition-colors py-2">
+                <Link 
+                  to="/discover" 
+                  className={`py-2 transition-colors ${
+                    isActive('/discover') ? 'text-icp-primary font-medium' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Discover
-                </a>
-                <a href="#events" className="text-muted-foreground hover:text-foreground transition-colors py-2">
+                </Link>
+                <Link 
+                  to="/events" 
+                  className={`py-2 transition-colors ${
+                    isActive('/events') ? 'text-icp-primary font-medium' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Events
-                </a>
-                <a href="#learning" className="text-muted-foreground hover:text-foreground transition-colors py-2">
+                </Link>
+                <Link 
+                  to="/learning" 
+                  className={`py-2 transition-colors ${
+                    isActive('/learning') ? 'text-icp-primary font-medium' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Learning
-                </a>
-                <a href="#community" className="text-muted-foreground hover:text-foreground transition-colors py-2">
+                </Link>
+                <Link 
+                  to="/community" 
+                  className={`py-2 transition-colors ${
+                    isActive('/community') ? 'text-icp-primary font-medium' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Community
-                </a>
+                </Link>
               </div>
               <div className="flex gap-2 pt-2">
                 {isConnected ? (
