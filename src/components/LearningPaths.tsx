@@ -2,8 +2,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock, Trophy, Zap, ArrowRight, Star } from "lucide-react";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const LearningPaths = () => {
+  const [enrolledPaths, setEnrolledPaths] = useState<number[]>([2]); // Mock: already enrolled in Motoko
+  const [appliedGrants, setAppliedGrants] = useState<number[]>([]);
+  const { toast } = useToast();
+  
   const learningPaths = [
     {
       id: 1,
@@ -71,6 +77,26 @@ const LearningPaths = () => {
     { name: "IC Network Status", description: "Real-time network monitoring", category: "Monitoring" },
     { name: "Vessel", description: "Package manager for Motoko", category: "Development" }
   ];
+
+  const handleEnrollPath = (pathId: number, pathTitle: string) => {
+    if (enrolledPaths.includes(pathId)) return;
+    
+    setEnrolledPaths(prev => [...prev, pathId]);
+    toast({
+      title: "Enrolled Successfully! 🎓",
+      description: `Started learning path: ${pathTitle}`,
+    });
+  };
+
+  const handleApplyGrant = (grantId: number, grantTitle: string) => {
+    if (appliedGrants.includes(grantId)) return;
+    
+    setAppliedGrants(prev => [...prev, grantId]);
+    toast({
+      title: "Application Submitted! 💰",
+      description: `Applied for: ${grantTitle}`,
+    });
+  };
 
   return (
     <section className="py-20">
@@ -154,8 +180,14 @@ const LearningPaths = () => {
                   </div>
                   
                   <div className="flex gap-3">
-                    <Button variant={path.progress > 0 ? "default" : "hero"} className="flex-1">
-                      {path.progress > 0 ? "Continue Learning" : "Start Learning"}
+                    <Button 
+                      variant={enrolledPaths.includes(path.id) ? "default" : "hero"} 
+                      className="flex-1"
+                      onClick={() => handleEnrollPath(path.id, path.title)}
+                      disabled={enrolledPaths.includes(path.id) && path.progress === 0}
+                    >
+                      {enrolledPaths.includes(path.id) && path.progress > 0 ? "Continue Learning" : 
+                       enrolledPaths.includes(path.id) ? "Enrolled" : "Start Learning"}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                     <Button variant="outline">
@@ -180,10 +212,19 @@ const LearningPaths = () => {
                       <span className="text-lg font-bold text-icp-primary">{grant.amount}</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">{grant.description}</p>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                       <span className="bg-muted/50 px-2 py-1 rounded">{grant.category}</span>
                       <span>Due: {grant.deadline}</span>
                     </div>
+                    <Button 
+                      variant={appliedGrants.includes(grant.id) ? "secondary" : "outline"} 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => handleApplyGrant(grant.id, grant.title)}
+                      disabled={appliedGrants.includes(grant.id)}
+                    >
+                      {appliedGrants.includes(grant.id) ? "Application Submitted" : "Apply Now"}
+                    </Button>
                   </div>
                 ))}
               </div>

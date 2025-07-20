@@ -5,11 +5,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Wrench, MapPin, Camera, Clock, Trophy, Zap } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const ProofOfHelp = () => {
   const [helpType, setHelpType] = useState("");
   const [location, setLocation] = useState("Jinja, Uganda");
   const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAINotification, setShowAINotification] = useState(false);
+  const { toast } = useToast();
 
   const recentHelps = [
     {
@@ -41,10 +45,36 @@ const ProofOfHelp = () => {
     }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would submit to the blockchain
-    console.log("Logging Proof of Help:", { helpType, location, description });
+    if (!helpType || !description) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    // Simulate blockchain submission
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setShowAINotification(true);
+      
+      toast({
+        title: "Proof of Help Logged! 🎉",
+        description: `Earned 5.2 ICP for ${helpType} in ${location}`,
+      });
+
+      // Reset form
+      setHelpType("");
+      setDescription("");
+      
+      // Auto-hide AI notification after 10 seconds
+      setTimeout(() => setShowAINotification(false), 10000);
+    }, 2000);
   };
 
   return (
@@ -115,26 +145,38 @@ const ProofOfHelp = () => {
                 </Button>
               </div>
 
-              <Button variant="hero" type="submit" className="w-full">
+              <Button variant="hero" type="submit" className="w-full" disabled={isSubmitting}>
                 <Zap className="mr-2 h-4 w-4" />
-                Submit Proof of Help
+                {isSubmitting ? "Submitting to Blockchain..." : "Submit Proof of Help"}
               </Button>
             </form>
 
             {/* AI-Triggered Notifications */}
-            <div className="mt-6 p-4 bg-icp-primary/10 border border-icp-primary/30 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-icp-primary rounded-full animate-pulse" />
-                <span className="text-sm font-medium text-icp-primary">AI Connect Triggered</span>
+            {showAINotification && (
+              <div className="mt-6 p-4 bg-icp-primary/10 border border-icp-primary/30 rounded-lg animate-in slide-in-from-bottom duration-500">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-icp-primary rounded-full animate-pulse" />
+                  <span className="text-sm font-medium text-icp-primary">AI Connect Triggered</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  🏁 <strong>Local Web3 Cleanup Hackathon</strong> this weekend in Jinja - 
+                  Perfect for infrastructure projects! Click to register.
+                </p>
+                <div className="flex gap-2 mt-2">
+                  <Button variant="outline" size="sm" onClick={() => {
+                    toast({
+                      title: "Registered for Hackathon! 🚀",
+                      description: "You'll receive location details via email"
+                    });
+                  }}>
+                    Register Now
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => setShowAINotification(false)}>
+                    Dismiss
+                  </Button>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground">
-                🏁 <strong>Local Web3 Cleanup Hackathon</strong> this weekend in Jinja - 
-                Perfect for infrastructure projects! Click to register.
-              </p>
-              <Button variant="outline" size="sm" className="mt-2">
-                View Event Details
-              </Button>
-            </div>
+            )}
           </Card>
 
           {/* Recent Help Actions */}

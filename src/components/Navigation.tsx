@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Bell, User, Menu } from "lucide-react";
+import { Search, Bell, User, Menu, Wallet, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useWallet } from "@/hooks/useWallet";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isConnected, principal, balance, isLoading, connectWallet, disconnectWallet, formatPrincipal } = useWallet();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -53,9 +55,29 @@ const Navigation = () => {
             <Button variant="ghost" size="icon" className="hidden md:flex">
               <User className="h-5 w-5" />
             </Button>
-            <Button variant="hero" size="sm" className="hidden md:flex">
-              Connect Wallet
-            </Button>
+            {isConnected ? (
+              <div className="hidden md:flex items-center gap-2">
+                <div className="flex flex-col items-end text-xs">
+                  <span className="text-muted-foreground">{formatPrincipal(principal!)}</span>
+                  <span className="text-icp-primary font-semibold">{balance.toFixed(2)} ICP</span>
+                </div>
+                <Button variant="outline" size="sm" onClick={disconnectWallet}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Disconnect
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                variant="hero" 
+                size="sm" 
+                className="hidden md:flex" 
+                onClick={connectWallet}
+                disabled={isLoading}
+              >
+                <Wallet className="mr-2 h-4 w-4" />
+                {isLoading ? "Connecting..." : "Connect Wallet"}
+              </Button>
+            )}
             
             {/* Mobile Menu Button */}
             <Button 
@@ -95,12 +117,34 @@ const Navigation = () => {
                 </a>
               </div>
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  Sign In
-                </Button>
-                <Button variant="hero" size="sm" className="flex-1">
-                  Connect Wallet
-                </Button>
+                {isConnected ? (
+                  <>
+                    <div className="flex-1 text-center p-2 bg-muted/50 rounded text-xs">
+                      <div className="text-muted-foreground">{formatPrincipal(principal!)}</div>
+                      <div className="text-icp-primary font-semibold">{balance.toFixed(2)} ICP</div>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={disconnectWallet}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Disconnect
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" className="flex-1">
+                      Sign In
+                    </Button>
+                    <Button 
+                      variant="hero" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={connectWallet}
+                      disabled={isLoading}
+                    >
+                      <Wallet className="mr-2 h-4 w-4" />
+                      {isLoading ? "Connecting..." : "Connect"}
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

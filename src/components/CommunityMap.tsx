@@ -1,8 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, Calendar, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const CommunityMap = () => {
+  const [connectedMembers, setConnectedMembers] = useState<number[]>([]);
+  const [joinedEvents, setJoinedEvents] = useState<number[]>([]);
+  const { toast } = useToast();
+  
   // Mock data for demonstration
   const communityMembers = [
     {
@@ -57,6 +63,26 @@ const CommunityMap = () => {
       type: "Virtual"
     }
   ];
+
+  const handleConnect = (memberId: number, memberName: string) => {
+    if (connectedMembers.includes(memberId)) return;
+    
+    setConnectedMembers(prev => [...prev, memberId]);
+    toast({
+      title: "Connection Sent! 🤝",
+      description: `Sent connection request to ${memberName}`,
+    });
+  };
+
+  const handleJoinEvent = (eventId: number, eventTitle: string) => {
+    if (joinedEvents.includes(eventId)) return;
+    
+    setJoinedEvents(prev => [...prev, eventId]);
+    toast({
+      title: "Event Joined! 🎉",
+      description: `Successfully registered for ${eventTitle}`,
+    });
+  };
 
   return (
     <section className="py-20 bg-muted/20">
@@ -137,8 +163,13 @@ const CommunityMap = () => {
                       </div>
                     </div>
                     
-                    <Button variant="ghost" size="sm">
-                      Connect
+                    <Button 
+                      variant={connectedMembers.includes(member.id) ? "outline" : "ghost"} 
+                      size="sm"
+                      onClick={() => handleConnect(member.id, member.name)}
+                      disabled={connectedMembers.includes(member.id)}
+                    >
+                      {connectedMembers.includes(member.id) ? "Connected" : "Connect"}
                     </Button>
                   </div>
                 ))}
@@ -181,9 +212,14 @@ const CommunityMap = () => {
                           </span>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant={joinedEvents.includes(event.id) ? "secondary" : "outline"} 
+                        size="sm"
+                        onClick={() => handleJoinEvent(event.id, event.title)}
+                        disabled={joinedEvents.includes(event.id)}
+                      >
                         <ExternalLink className="mr-2 h-3 w-3" />
-                        Join
+                        {joinedEvents.includes(event.id) ? "Joined" : "Join"}
                       </Button>
                     </div>
                   </div>
