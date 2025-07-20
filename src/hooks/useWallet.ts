@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { AuthClient } from '@dfinity/auth-client';
-import { Actor, HttpAgent } from '@dfinity/agent';
 
 interface WalletState {
   isConnected: boolean;
@@ -19,62 +17,46 @@ export const useWallet = () => {
     error: null,
   });
 
-  const [authClient, setAuthClient] = useState<AuthClient | null>(null);
-
   useEffect(() => {
-    initAuthClient();
+    // Check if wallet was previously connected (stored in localStorage)
+    const savedWallet = localStorage.getItem('icpWallet');
+    if (savedWallet) {
+      const parsed = JSON.parse(savedWallet);
+      setWallet(prev => ({
+        ...prev,
+        isConnected: true,
+        principal: parsed.principal,
+        balance: parsed.balance,
+      }));
+    }
   }, []);
 
-  const initAuthClient = async () => {
-    try {
-      const client = await AuthClient.create();
-      setAuthClient(client);
-      
-      const isAuthenticated = await client.isAuthenticated();
-      if (isAuthenticated) {
-        const identity = client.getIdentity();
-        const principal = identity.getPrincipal().toString();
-        setWallet(prev => ({
-          ...prev,
-          isConnected: true,
-          principal,
-          balance: Math.random() * 100, // Mock balance
-        }));
-      }
-    } catch (error) {
-      console.error('Error initializing auth client:', error);
-      setWallet(prev => ({ ...prev, error: 'Failed to initialize wallet' }));
-    }
-  };
-
   const connectWallet = async () => {
-    if (!authClient) return;
-
     setWallet(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      await authClient.login({
-        identityProvider: 'https://identity.ic0.app/#authorize',
-        onSuccess: () => {
-          const identity = authClient.getIdentity();
-          const principal = identity.getPrincipal().toString();
-          setWallet(prev => ({
-            ...prev,
-            isConnected: true,
-            principal,
-            balance: Math.random() * 100, // Mock balance
-            isLoading: false,
-          }));
-        },
-        onError: (error) => {
-          console.error('Login failed:', error);
-          setWallet(prev => ({
-            ...prev,
-            isLoading: false,
-            error: 'Failed to connect wallet',
-          }));
-        },
-      });
+      // Simulate wallet connection
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Generate mock wallet data
+      const mockPrincipal = `rdmx6-jaaaa-aaaah-qcaiq-${Math.random().toString(36).substr(2, 9)}`;
+      const mockBalance = Math.random() * 50 + 10; // Random balance between 10-60 ICP
+      
+      const walletData = {
+        principal: mockPrincipal,
+        balance: mockBalance,
+      };
+
+      // Save to localStorage
+      localStorage.setItem('icpWallet', JSON.stringify(walletData));
+
+      setWallet(prev => ({
+        ...prev,
+        isConnected: true,
+        principal: mockPrincipal,
+        balance: mockBalance,
+        isLoading: false,
+      }));
     } catch (error) {
       console.error('Error connecting wallet:', error);
       setWallet(prev => ({
@@ -86,10 +68,8 @@ export const useWallet = () => {
   };
 
   const disconnectWallet = async () => {
-    if (!authClient) return;
-
     try {
-      await authClient.logout();
+      localStorage.removeItem('icpWallet');
       setWallet({
         isConnected: false,
         principal: null,
